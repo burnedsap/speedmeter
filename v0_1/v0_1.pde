@@ -1,14 +1,3 @@
-/*****************************************************************************************
- Android Processing GPS example
- 
- Query the phone's GPS and display the data on the screen
- 
- Rolf van Gelder - v 22/02/2011 - http://cage.nl :: http://cagewebdev.com :: info@cage.nl
- 
- Check the ACCESS_FINE_LOCATION permission in Sketch Permissions!
- 
- *****************************************************************************************/
-
 // Import needed Android libs
 import android.content.Context;
 import android.location.Location;
@@ -29,13 +18,18 @@ float currentAccuracy  = 0;
 String currentProvider = "";
 float currentSpeed = 0;
 
+PFont speedBig;
+
 boolean hasLocation = false;
 
 void setup () {
   fullScreen();
-  orientation(PORTRAIT);  
+  //size(displayWidth, displayHeight);
+  orientation(LANDSCAPE);  
   textFont(createFont("SansSerif", 26 * displayDensity));
-  textAlign(CENTER, CENTER);
+  //textAlign(CENTER, CENTER);
+  rectMode(CENTER);
+  speedBig = createFont("fonts/SpaceGrotesk-Bold.ttf", 70*displayDensity);
   requestPermission("android.permission.ACCESS_FINE_LOCATION", "initLocation");
 }
 
@@ -43,11 +37,20 @@ void draw() {
   background(0);
   ellipse(mouseX, mouseY, 40, 40);
   if (hasPermission("android.permission.ACCESS_FINE_LOCATION")) {
+    textFont(speedBig, 70*displayDensity);
+    textAlign(CENTER, CENTER);
+    text(currentSpeed+" km/hr", width/2, height/2);
+
+    textFont(speedBig, 14*displayDensity);
+    textAlign(LEFT, TOP);
+
     text("Latitude: " + currentLatitude + "\n" +
-      "Longitude: " + currentLongitude + "\n" +
-      "Accuracy: " + currentAccuracy + "\n" +
-      "Speed: " + currentSpeed + "\n" +
-      "Provider: " + currentProvider, 0, 0, width, height);
+      "Longitude: " + currentLongitude, 10*displayDensity, 10*displayDensity);
+    textFont(speedBig, 12*displayDensity);
+    textAlign(LEFT, BOTTOM);
+
+    text("Provider: " + currentProvider + "\n" +
+      "Accuracy: " + currentAccuracy, 10*displayDensity, displayHeight-(10*displayDensity));
   } else {
     text("No permissions to access location", 0, 0, width, height);
   }
@@ -60,6 +63,8 @@ void initLocation(boolean granted) {
     locationManager = (LocationManager) context.getSystemService(Context.LOCATION_SERVICE);    
     // Register the listener with the Location Manager to receive location updates
     locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0, 0, locationListener);
+    //locationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 0, 0, locationListener);
+
     hasLocation = true;
   } else {
     hasLocation = false;
@@ -77,7 +82,6 @@ class MyLocationListener implements LocationListener {
       currentAccuracy = 0;
       currentProvider = "YOLO";
       currentSpeed = 0;
-      
     } else {
       currentLatitude  = (float)location.getLatitude();
       currentLongitude = (float)location.getLongitude();
@@ -86,8 +90,6 @@ class MyLocationListener implements LocationListener {
       currentSpeed = location.getSpeed();
     }
   }
-
-
 
   public void onProviderDisabled (String provider) { 
     currentProvider = "";
