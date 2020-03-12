@@ -35,6 +35,9 @@ PFont speedBig;
 float currentTime = 0;
 float timeElapsed = 0;
 float time;
+float currentBearing = 0;
+float currentAltitude = 0;
+float currentSatellites = 0;
 boolean hasLocation = false;
 
 void setup () {
@@ -81,11 +84,14 @@ void draw() {
     textAlign(LEFT, TOP);
 
     text("Latitude: " + currentLatitude + "\n" +
-      "Longitude: " + currentLongitude, 10*displayDensity, 10*displayDensity);
+      "Longitude: " + currentLongitude + "\n" +
+      "Altitude: " + currentAltitude + "\n" +
+      "Bearing: " + currentBearing, 10*displayDensity, 10*displayDensity);
     textFont(speedBig, 12*displayDensity);
     textAlign(LEFT, BOTTOM);
 
-    text("Accuracy: " + currentAccuracy, 10*displayDensity, displayHeight-(10*displayDensity));
+    text("No. of satellites: " + currentSatellites + "\n" +
+    "Accuracy: " + currentAccuracy, 10*displayDensity, displayHeight-(10*displayDensity));
   } else {
     text("No permissions to access location", 0, 0, width, height);
   }
@@ -98,8 +104,8 @@ void initLocation(boolean granted) {
     locationListener = new MyLocationListener();
     locationManager = (LocationManager) context.getSystemService(Context.LOCATION_SERVICE);    
     // Register the listener with the Location Manager to receive location updates
-    locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0, 0, locationListener);
-    //locationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 0, 0, locationListener);
+    locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 100, 1, locationListener);
+    locationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 100, 1, locationListener);
     hasLocation = true;
   } else {
     hasLocation = false;
@@ -139,6 +145,9 @@ class MyLocationListener implements LocationListener {
       latA  = (float)location.getLatitude();
       longA = (float)location.getLongitude();
       currentAccuracy  = (float)location.getAccuracy();
+      currentAltitude = (float)location.getAltitude();
+      currentBearing = (float)location.getBearing();
+      currentSatellites = location.getExtras().getInt("satellites");
       //currentProvider  = location.getProvider();
       currentSpeed = (location.getSpeed()*3600/1000);
 
